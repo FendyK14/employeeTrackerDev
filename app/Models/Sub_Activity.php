@@ -9,7 +9,15 @@ class Sub_Activity extends Model
 {
     use HasFactory;
 
-    public function activities(){
-        return $this->hasMany(Activity::class);
+    protected $table = 'sub_activities';
+    protected $primaryKey = 'subActivityId';
+
+    protected $fillable = [
+        'subActivityName',
+    ];
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class, 'subActivityId', 'subActivityId');
     }
 }

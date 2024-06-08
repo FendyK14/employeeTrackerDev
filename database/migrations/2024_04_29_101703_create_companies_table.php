@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->bigIncrements('companyId');
             $table->string('companyName', 100);
+            $table->string('companyPhone', 15);
             $table->string('companyAddress');
             $table->string('companyEmail', 100)->unique();
             $table->timestamps();

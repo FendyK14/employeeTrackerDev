@@ -9,7 +9,19 @@ class Comment extends Model
 {
     use HasFactory;
 
-    public function detail_comments(){
-        return $this->hasMany(Detail_Comment::class);
+    protected $primaryKey = 'commentId';
+
+    protected $fillable = [
+        'employeeId', 'description'
+    ];
+
+    public function employees()
+    {
+        return $this->belongsTo(Employee::class, 'employeeId', 'employeeId');
+    }
+
+    public function activities()
+    {
+        return $this->belongsToMany(Activity::class, 'detail_activity_comments', 'commentId', 'activityId');
     }
 }

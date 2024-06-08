@@ -2,38 +2,67 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+// use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Model;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+
 
 class Employee extends Model
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    public function companies(){
+    protected $table = 'employees';
+    protected $primaryKey = 'employeeId';
+
+    protected $fillable = [
+        'employeeName', 'DOB', 'employeeEmail', 'noTelp', 'password', 'gender', 'employeeAddress', 'companyId', 'positionId', 'email_verified_at'
+    ];
+
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    public function companies()
+    {
         return $this->belongsTo(Company::class);
     }
 
-    public function attendances(){
-        return $this->hasMany(Attendance::class);
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'employeeId', 'employeeId');
     }
 
-    public function performances(){
+    public function performances()
+    {
         return $this->hasMany(Performance::class);
     }
 
-    public function activities(){
+    public function activities()
+    {
         return $this->hasMany(Activity::class);
     }
 
-    public function positions(){
-        return $this->belongsTo(Position::class);
+    public function positions()
+    {
+        return $this->belongsTo(Position::class, 'positionId', 'positionId');
     }
 
-    public function detail_groups(){
-        return $this->hasMany(Detail_Group::class);
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'detail_employee_groups', 'employeeId', 'groupId')->withPivot('isLeader');
     }
 
-    public function detail_comments(){
-        return $this->hasMany(Detail_Comment::class);
+    public function leader()
+    {
+        return $this->groups()->wherePivot('isLeader', true)->first();
+    }
+
+    public function comments(){
+        return $this->hasMany(Comment::class, 'employeeId', 'employeeId');
     }
 }

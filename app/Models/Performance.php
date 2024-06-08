@@ -9,7 +9,23 @@ class Performance extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'performanceId';
+
+    protected $fillable = [
+        'employeeId',
+        'description',
+        'attendanceScore',
+        'communicationScore',
+        'responsibilityScore',
+        'qualityWorkScore',
+        'collaborationScore',
+        'evaluationDate',
+        'notes',
+        'status',
+        'employeeId',
+    ];
+
     public function employees(){
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'employeeId');
     }
 }

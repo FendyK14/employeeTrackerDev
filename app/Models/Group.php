@@ -9,11 +9,25 @@ class Group extends Model
 {
     use HasFactory;
 
-    public function detail_groups(){
-        return $this->hasMany(Detail_Group::class);
+    protected $table = 'groups';
+    protected $primaryKey = 'groupId';
+
+    protected $fillable = [
+        'groupName'
+    ];
+
+    public function projects()
+    {
+        return $this->hasOne(Project::class, 'groupId', 'groupId');
     }
 
-    public function projects(){
-        return $this->hasOne(Project::class);
+    public function employees()
+    {
+        return $this->belongsToMany(Employee::class, 'detail_employee_groups', 'groupId', 'employeeId')->withPivot('isLeader');
+    }
+
+    public function leader()
+    {
+        return $this->employees()->wherePivot('isLeader', true)->first();
     }
 }
