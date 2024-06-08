@@ -1,0 +1,18 @@
+[setup]
+runtime = ["php80.withExtensions (pe: pe.enabled ++ [])", "nginx", "libmysqlclient", "php80Packages.composer", "nodejs_18", "npm-9_x"]
+
+[install]
+commands = [
+  "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
+  "composer install --ignore-platform-reqs",
+  "npm ci"
+]
+
+[build]
+commands = ["npm run build"]
+
+[start]
+commands = [
+  "node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf",
+  "(php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
+]
