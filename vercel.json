@@ -16,6 +16,7 @@
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "APP_URL": "https://employee-tracker-dev.vercel.app",
+        "APP_KEY": "base64:xqvU9Ob9pEh+wVD0v8hE6P8jbMXifaxOWjdE2BK+7uA=",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
