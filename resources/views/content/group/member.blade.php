@@ -14,8 +14,10 @@
                 <div>
                     <div class="d-flex align-items-center mb-3">
                         <h1 class="fw-bold me-3">{{ $groups->groupName }}</h1>
-                        <a class="text-decoraration-none" href={{ route('Edit Group', ['id' => $groups->groupId]) }}><i
-                                class="fa-solid fa-pen-to-square"></i></a>
+                        @if (Session::get('employee')->positionId === 2)
+                            <a class="text-decoraration-none" href={{ route('Edit Group', ['id' => $groups->groupId]) }}><i
+                                    class="fa-solid fa-pen-to-square"></i></a>
+                        @endif
                     </div>
                     <h6 class="fw-normal">Leader: {{ $leader->employeeName }} </h6>
                     <h6 class="fw-normal">Project: {{ optional($groups->projects)->projectName ?: '-' }}</h6>

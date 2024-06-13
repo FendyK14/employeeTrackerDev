@@ -13,10 +13,16 @@ class GroupController extends Controller
     // Index group
     public function index(Request $request)
     {
+        // Mendapatkan ID pegawai yang sedang login
+        $employeeId = Auth::guard('employee')->user()->employeeId;
+
         // Search
         $query['search'] = $request->get('search');
         // Query group berdasarkan $query
-        $groups = Group::where('groupName', 'LIKE', '%' . $query['search'] . '%')->with('employees')->paginate(9)->withQueryString();
+        $groups = Group::where('groupName', 'LIKE', '%' . $query['search'] . '%')
+            ->whereHas('employees', function ($query) use ($employeeId) {
+                $query->where('employees.employeeId', $employeeId); // Memastikan pengguna adalah pemilik grup
+            })->with('employees')->paginate(9)->withQueryString();
 
         // Return view ketika success
         return view('content.group.group', compact('groups', 'query'));
@@ -81,7 +87,7 @@ class GroupController extends Controller
         // Mengambil detail group beserta employees-nya
         $groups = Group::with('employees')->find($id);
         // Query employee dimana tidak sama dengan auth
-        $employees = Employee::where('employeeId', '!=', $auth)->where('positionId', '!=', '1')->get();
+        $employees = Employee::where('employeeId', '!=', $auth)->whereNotIn('positionId', [1, 2])->get();
 
         return view('content.group.add-member', compact('groups', 'employees'));
     }

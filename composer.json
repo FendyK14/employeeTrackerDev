@@ -48,9 +48,6 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
-        ],
-        "deploy": [
-            "cp server.php api/index.php"
         ]
     },
     "extra": {

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
+
 // use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
@@ -32,13 +34,13 @@ class AuthController extends Controller
             return redirect('dashboard');
         }
 
-        return view('auth.login');
+        return view('auth.login.login');
     }
 
     // Show view register company
     public function index_register_company()
     {
-        return view('auth.register_company');
+        return view('auth.register.register_company');
     }
 
     // Show view register user
@@ -47,7 +49,7 @@ class AuthController extends Controller
         // $positions = Position::all();
         $companies = Company::all();
 
-        return view('auth.register_user', compact('companies'));
+        return view('auth.register.register_user', compact('companies'));
     }
 
     // Logic login
@@ -58,24 +60,29 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $companies = DB::table('companies')->get();
+        if (Schema::hasTable('companies')) {
+            $companies = DB::table('companies')->get();
 
-        foreach ($companies as $company) {
-            $databaseName = 'etrac_' . strtolower(str_replace(' ', '_', $company->companyName));
-            $this->setDynamicDatabase($databaseName);
+            // dd($companies);
+            foreach ($companies as $company) {
+                $databaseName = 'etrac_' . strtolower(str_replace(' ', '_', $company->companyName));
+                $this->setDynamicDatabase($databaseName);
 
-            if (Auth::guard('employee')->attempt($credentials)) {
-                if ($request->remember_me) {
-                    Cookie::queue('authEmail', $request->employeeEmail, 120);
-                    Cookie::queue('authPassword', $request->password, 120);
+                if (Auth::guard('employee')->attempt($credentials)) {
+                    if ($request->remember_me) {
+                        Cookie::queue('authEmail', $request->employeeEmail, 120);
+                        Cookie::queue('authPassword', $request->password, 120);
+                    }
+                    Session::put('employee', Auth::guard('employee')->user());
+                    return redirect('dashboard');
+                } else {
+                    DB::purge('dynamic');
                 }
-                Session::put('employee', Auth::guard('employee')->user());
-                return redirect('dashboard');
-            } else {
-                DB::purge('dynamic');
             }
+            return redirect()->back()->with('status', 'Login Failed!');
+        } else {
+            return redirect()->back()->with('status', 'Tabel companies tidak ditemukan.');
         }
-        return redirect()->back()->with('status', 'Login Failed!');
     }
 
     // Logic register company
@@ -193,9 +200,19 @@ class AuthController extends Controller
     {
         $databaseName = 'etrac_' . strtolower(str_replace(' ', '_', $companyName));
 
-        DB::statement("CREATE DATABASE {$databaseName}");
+        if (!$this->databaseExists($databaseName)) {
+            DB::statement("CREATE DATABASE {$databaseName}");
+            return "Database {$databaseName} created successfully.";
+        } else {
+            return "Database {$databaseName} already exists.";
+        }
+    }
 
-        return $databaseName;
+    // Cek DB same
+    protected function databaseExists($databaseName)
+    {
+        $result = DB::select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", [$databaseName]);
+        return !empty($result);
     }
 
     // logic set dynamic database

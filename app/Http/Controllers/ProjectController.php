@@ -6,6 +6,7 @@ use App\Models\Group;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -19,16 +20,20 @@ class ProjectController extends Controller
         $query['search'] = $request->get('search');
         $query['date'] = $request->get('date');
 
-        $projects = Project::where('projectName', 'LIKE', '%' . $query['search'] . '%')->where(
-            function ($queryBuilder) use ($query) { // Menggunakan variabel $query
-                if ($query['date']) { // Menggunakan variabel $query
-                    $month = Carbon::parse($query['date'])->format('m');
-                    $year = Carbon::parse($query['date'])->format('Y');
-                    $queryBuilder->whereMonth('startDate', '=', $month)->whereYear('startDate', '=', $year);
-                    // dd($queryBuilder->toSql(), $queryBuilder->getBindings());
-                }
-            }
-        )->paginate(10)->withQueryString();
+        // cek group
+        $auth = Auth::guard('employee')->user()->employeeId;
+
+        $projects = Project::whereHas('groups.employees', function ($query) use ($auth) {
+            $query->where('employees.employeeId', $auth);
+        })
+            ->where('projectName', 'LIKE', '%' . $query['search'] . '%')
+            ->when($query['date'], function ($queryBuilder) use ($query) {
+                $month = Carbon::parse($query['date'])->format('m');
+                $year = Carbon::parse($query['date'])->format('Y');
+                $queryBuilder->whereMonth('startDate', '=', $month)->whereYear('startDate', '=', $year);
+            })
+            ->paginate(10)
+            ->withQueryString();
 
         // Alert custom sweatalert
         $title = 'Delete Data!';
@@ -42,7 +47,14 @@ class ProjectController extends Controller
     // Store
     public function index_add()
     {
-        $groups = Group::whereDoesntHave('projects')->get();
+        // cek group
+        $auth = Auth::guard('employee')->user()->employeeId;
+
+        $groups = Group::whereDoesntHave('projects')
+            ->whereHas('employees', function ($query) use ($auth) {
+                $query->where('employees.employeeId', $auth);
+            })->get();
+
         return view('content.project.add', compact('groups'));
     }
 
@@ -71,10 +83,19 @@ class ProjectController extends Controller
         // Cari id projectt
         $project = Project::find($id);
 
-        // Query groups
+        // cek group
+        $auth = Auth::guard('employee')->user()->employeeId;
+
         $groups = Group::whereDoesntHave('projects')
-            ->orWhere('groupId', $project->groupId)
-            ->get();
+            ->whereHas('employees', function ($query) use ($auth) {
+                $query->where('employees.employeeId', $auth);
+            })->orWhere('groupId', $project->groupId)->get();
+
+        // dd($groups->toSql());
+        // // Query groups
+        // $groups = Group::whereDoesntHave('projects')
+        //     ->orWhere('groupId', $project->groupId)
+        //     ->get();
 
         // Return view jika id berhasil ditemukan
         return view('content.project.edit', compact('project', 'groups'));

@@ -44,7 +44,6 @@
                                     <h5 class="card-title fs-5 mb-auto">{{ $data->groupName }}</h5>
                                     <hr class="m-0">
                                     <h6 class="card-subtitle mb-2 text-muted">
-                                        {{ $isMember }}
                                         Leader: {{ $leader ? $leader->employeeName : '-' }}
                                     </h6>
                                     <h6 class="card-subtitle mb-2 text-muted">Project :

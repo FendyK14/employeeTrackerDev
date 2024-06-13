@@ -15,10 +15,15 @@ class ActivityController extends Controller
     // Index Group
     public function index_group(Request $request)
     {
+        // Mendapatkan ID pegawai yang sedang login
+        $employeeId = Auth::guard('employee')->user()->employeeId;
         // Search
         $query['search'] = $request->get('search');
         // Query group berdasarkan $query
-        $groups = Group::where('groupName', 'LIKE', '%' . $query['search'] . '%')->with('projects')->paginate(9)->withQueryString();
+        $groups = Group::where('groupName', 'LIKE', '%' . $query['search'] . '%')
+            ->whereHas('employees', function ($query) use ($employeeId) {
+                $query->where('employees.employeeId', $employeeId); // Memastikan pengguna adalah pemilik grup
+            })->with('employees')->paginate(9)->withQueryString();
 
         // Return view ketika success
         return view('content.activity.group.groupActivity', compact('groups', 'query'));

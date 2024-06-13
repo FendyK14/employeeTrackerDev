@@ -56,50 +56,6 @@
                                                 <td>{{ ['High', 'Medium', 'Low'][$data->priority - 1] }}</td>
                                                 <td>{{ $data->status }}</td>
                                                 <td class="text-center">
-                                                    {{-- <a role="button" data-toggle="modal"
-                                                        data-target="#comments-{{ $data->activityId }}"
-                                                        class="text-secondary me-3">
-                                                        <i class="fa-solid fa-comments menu-icon"></i>
-                                                    </a>
-                                                    <div class="modal fade" id="comments-{{ $data->activityId }}"
-                                                        tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                                                        aria-hidden="true">
-                                                        <div class="modal-dialog modal-dialog-scrollable"
-                                                            role="document">
-                                                            <form method="POST" enctype="multipart/form-data"
-                                                                action="{{ route('Add Comments', ['id' => $data->activityId]) }}">
-                                                                @csrf
-                                                                <div class="modal-content" style="width:500px !important">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="commentModalLabel">
-                                                                            Comments</h5>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        <ul class="list-group">
-                                                                            @if ($data->comments->isNotEmpty())
-                                                                                @foreach ($activity->comments as $comment)
-                                                                                    <li class="list-group-item">
-                                                                                        {{ $comment->description }}</li>
-                                                                                @endforeach
-                                                                            @else
-                                                                                <li class="list-group-item">No comments
-                                                                                    available.</li>
-                                                                            @endif
-                                                                        </ul>
-                                                                    </div>
-                                                                    <div class="form-group mt-3">
-                                                                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-                                                                        <button type="submit"
-                                                                            class="btn btn-primary">Submit</button>
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary"
-                                                                            data-dismiss="modal">Close</button>
-                                                                    </div>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div> --}}
                                                     <a href={{ route('Comments', ['id' => $data->activityId]) }}
                                                         class="text-decoration-none text-secondary fw-bold pe-3"><i
                                                             class="fa-solid fa-comments menu-icon"></i></a>
